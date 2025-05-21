@@ -1,6 +1,7 @@
 const express = require('express');
 const app = express();
-const PORT = 3000;
+// const PORT = 3000;
+const PORT = 80;
 
 const domainMap = {
   'reports1.ydns.eu': 'abc123',
@@ -20,7 +21,6 @@ app.get('/dashboard/public', (req, res) => {
 
   res.send("We will now map your domain to a dashboard. You can now go to: " + `${host}/dashboard/public/${dashboardId}`);
 
-  // res.redirect(`/dashboard/public/${dashboardId}`);
 });
 
 // Route that actually serves dashboard content
