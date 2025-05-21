@@ -3,13 +3,14 @@ const app = express();
 const PORT = 3000;
 
 const domainMap = {
-  'reports1.duckdns.org': 'abc123',
+  'reports1.ydns.eu': 'abc123',
   'another.domain.com': 'xyz789'
 };
 
 // Main route to serve dashboard via custom domain
 app.get('/dashboard/public', (req, res) => {
   const host = req.hostname; 
+  console.log("Host = ", host);
   const dashboardId = domainMap[host];
 
   if (!dashboardId) {
