@@ -25,6 +25,9 @@ app.get('/dashboard/public/:id', (req, res) => {
   res.send(`<h1>Public Dashboard ID: ${id}</h1>`);
 });
 
+app.get('/', (req,res)=>{
+  res.send("Hello from a VPS Server"); 
+})
 
 app.listen(PORT, '0.0.0.0', () => {
   console.log(`🚀 Server running on http://0.0.0.0:${PORT}`);
