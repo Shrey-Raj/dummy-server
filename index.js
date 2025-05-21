@@ -17,10 +17,9 @@ app.get('/dashboard/public', (req, res) => {
     return res.status(404).send('No dashboard mapped to this domain.');
   }
 
-  res.send("We will now map your domain to a dashboard");
+  res.send("We will now map your domain to a dashboard. You can now go to ", `${host}/dashboard/public/${dashboardId}`);
 
-  // Optionally redirect to the actual dashboard route, or just render it directly
-  res.redirect(`/dashboard/public/${dashboardId}`);
+  // res.redirect(`/dashboard/public/${dashboardId}`);
 });
 
 // Route that actually serves dashboard content
