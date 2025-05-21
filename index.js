@@ -9,11 +9,14 @@ const domainMap = {
 
 // Main route to serve dashboard via custom domain
 app.get('/dashboard/public', (req, res) => {
+  const host = req.hostname; 
   const dashboardId = domainMap[host];
 
   if (!dashboardId) {
     return res.status(404).send('No dashboard mapped to this domain.');
   }
+
+  res.send("We will now map your domain to a dashboard");
 
   // Optionally redirect to the actual dashboard route, or just render it directly
   res.redirect(`/dashboard/public/${dashboardId}`);
