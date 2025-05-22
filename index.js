@@ -88,6 +88,9 @@ app.get("/api/should-allow-domain", (req, res) => {
   // Check if domain is owned by a user in your DB
   // const isAllowed = allowedDomains.includes(domain);
   const isAllowed = true;
+
+  console.log("Hitting the endpoint: /api/should-allow-domain");
+
   res.send(isAllowed ? "yes" : "no");
 });
 
