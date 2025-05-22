@@ -1,7 +1,14 @@
 const express = require('express');
+const dns = require('dns').promises;
+const { exec } = require('child_process');
+const bodyParser = require('body-parser');
+
 const app = express();
-// const PORT = 3000;
 const PORT = 80;
+
+const VPS_IP = '65.20.77.245';
+
+app.use(bodyParser.json());
 
 const domainMap = {
   'reports1.ydns.eu': 'abc123',
@@ -9,17 +16,65 @@ const domainMap = {
   'localhost': 'localhost123'
 };
 
+async function verifyARecord(domain) {
+  try {
+    const records = await dns.resolve4(domain);
+    console.log(`DNS A records for ${domain}:`, records);
+    return records.includes(VPS_IP);
+  } catch (err) {
+    console.error(`Failed to resolve ${domain}:`, err.message);
+    return false;
+  }
+}
+
+// ✅ Run certbot via NGINX for HTTPS
+async function issueCert(domain) {
+  return new Promise((resolve, reject) => {
+    const cmd = `sudo certbot --nginx -d ${domain} --non-interactive --agree-tos -m you@example.com`;
+    console.log(`Running: ${cmd}`);
+    exec(cmd, (error, stdout, stderr) => {
+      if (error) {
+        console.error(`Certbot error:`, stderr);
+        return reject(stderr);
+      }
+      console.log(`Certbot success:\n`, stdout);
+      resolve(stdout);
+    });
+  });
+}
+
+app.post('/add-domain', async (req, res) => {
+  const { domain, dashboardId } = req.body;
+
+  if (!domain || !dashboardId) {
+    return res.status(400).json({ error: 'domain and dashboardId required' });
+  }
+
+  const valid = await verifyARecord(domain);
+
+  if (!valid) {
+    return res.status(400).json({ error: `A-record of ${domain} doesn't match ${VPS_IP}` });
+  }
+
+  try {
+    await issueCert(domain);
+    domainMap[domain] = dashboardId;
+    console.log(`✅ Domain ${domain} is now mapped to dashboard: ${dashboardId}`);
+    res.json({ success: true, message: `HTTPS setup completed for ${domain}` });
+  } catch (err) {
+    res.status(500).json({ error: `Failed to issue cert: ${err}` });
+  }
+});
+
 app.get('/dashboard/public', (req, res) => {
-  const host = req.hostname; 
-  console.log("Host = ", host);
+  const host = req.hostname;
   const dashboardId = domainMap[host];
 
   if (!dashboardId) {
     return res.status(404).send('No dashboard mapped to this domain.');
   }
 
-  res.send("We will now map your domain to a dashboard. You can now go to: " + `${host}/dashboard/public/${dashboardId}`);
-
+  res.send(`You can now visit: https://${host}/dashboard/public/${dashboardId}`);
 });
 
 app.get('/dashboard/public/:id', (req, res) => {
@@ -27,9 +82,9 @@ app.get('/dashboard/public/:id', (req, res) => {
   res.send(`<h1>Public Dashboard ID: ${id}</h1>`);
 });
 
-app.get('/', (req,res)=>{
-  res.send("Hello from a VPS Server"); 
-})
+app.get('/', (req, res) => {
+  res.send('Hello from a VPS Server');
+});
 
 app.listen(PORT, '0.0.0.0', () => {
   console.log(`🚀 Server running on http://0.0.0.0:${PORT}`);
