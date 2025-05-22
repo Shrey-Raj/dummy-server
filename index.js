@@ -31,13 +31,10 @@ async function verifyARecord(domain) {
 async function issueCert(domain) {
   return new Promise((resolve, reject) => {
     const cmd = `sudo certbot --nginx -d ${domain} --non-interactive --agree-tos -m you@example.com`;
-    console.log(`Running: ${cmd}`);
     exec(cmd, (error, stdout, stderr) => {
       if (error) {
-        console.error(`Certbot error:`, stderr);
-        return reject(stderr);
+        return reject(stderr);  
       }
-      console.log(`Certbot success:\n`, stdout);
       resolve(stdout);
     });
   });
@@ -51,20 +48,20 @@ app.post('/add-domain', async (req, res) => {
   }
 
   const valid = await verifyARecord(domain);
-
   if (!valid) {
     return res.status(400).json({ error: `A-record of ${domain} doesn't match ${VPS_IP}` });
   }
 
   try {
-    await issueCert(domain);
+    await issueCert(domain); // Don't send a response from inside issueCert
     domainMap[domain] = dashboardId;
-    console.log(`✅ Domain ${domain} is now mapped to dashboard: ${dashboardId}`);
-    res.json({ success: true, message: `HTTPS setup completed for ${domain}` });
+    return res.json({ success: true, message: `HTTPS setup completed for ${domain}` });
   } catch (err) {
-    res.status(500).json({ error: `Failed to issue cert: ${err}` });
+    console.error("Certbot error:", err);
+    return res.status(500).json({ error: `Certbot failed: ${err}` });
   }
 });
+
 
 app.get('/dashboard/public', (req, res) => {
   const host = req.hostname;
