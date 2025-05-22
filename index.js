@@ -1,7 +1,7 @@
 const express = require('express');
 const app = express();
-// const PORT = 3000;
-const PORT = 80;
+const PORT = 3000;
+// const PORT = 80;
 
 const domainMap = {
   'reports1.ydns.eu': 'abc123',
@@ -9,7 +9,6 @@ const domainMap = {
   'localhost': 'localhost123'
 };
 
-// Main route to serve dashboard via custom domain
 app.get('/dashboard/public', (req, res) => {
   const host = req.hostname; 
   console.log("Host = ", host);
@@ -23,7 +22,6 @@ app.get('/dashboard/public', (req, res) => {
 
 });
 
-// Route that actually serves dashboard content
 app.get('/dashboard/public/:id', (req, res) => {
   const { id } = req.params;
   res.send(`<h1>Public Dashboard ID: ${id}</h1>`);
