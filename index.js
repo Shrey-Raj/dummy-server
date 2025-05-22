@@ -83,6 +83,14 @@ app.get('/', (req, res) => {
   res.send('Hello from a VPS Server');
 });
 
+app.get("/api/should-allow-domain", (req, res) => {
+  const domain = req.query.domain;
+  // Check if domain is owned by a user in your DB
+  // const isAllowed = allowedDomains.includes(domain);
+  const isAllowed = true;
+  res.send(isAllowed ? "yes" : "no");
+});
+
 app.listen(PORT, '0.0.0.0', () => {
   console.log(`🚀 Server running on http://0.0.0.0:${PORT}`);
 });
