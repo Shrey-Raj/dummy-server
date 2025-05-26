@@ -79,6 +79,11 @@ app.get('/dashboard/public/:id', (req, res) => {
   res.send(`<h1>Public Dashboard ID: ${id}</h1>`);
 });
 
+app.get('/ask-if-valid', (req, res) => {
+  res.status(200).send('Hello from a VPS Server');
+});
+
+
 app.get('/', (req, res) => {
   res.send('Hello from a VPS Server');
 });
