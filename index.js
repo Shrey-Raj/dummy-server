@@ -4,7 +4,7 @@ const { exec } = require('child_process');
 const bodyParser = require('body-parser');
 
 const app = express();
-const PORT = 3000;
+const PORT = 8080;
 
 const VPS_IP = '65.20.77.245';
 
